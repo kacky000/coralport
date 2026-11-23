@@ -32,60 +32,63 @@ export function setupShot(name, camera, gameState, scene) {
 }
 
 function setupCoverShot(camera, gs, scene) {
-  // Police chase on a sunny boulevard: player in a red car, 4 wanted stars,
-  // multiple police cars with sirens chasing, traffic, full HUD
-  gs.player.x = 50;
-  gs.player.z = -200;
+  // Police chase along a boulevard: player in a red car, 4 wanted stars,
+  // police cars with sirens chasing, buildings framing the road
+  // Road at z = -192 (horizontal), camera looks along it eastward
+  const roadZ = -192;
+  gs.player.x = 10;
+  gs.player.z = roadZ;
   gs.inVehicle = true;
   gs.wantedLevel = 4;
   gs.player.money = 3200;
 
-  // Player's car — a red sports car speeding down the road
-  const playerCar = createCarModel(0); // red
-  playerCar.position.set(50, 0.3, -200);
-  playerCar.rotation.y = Math.PI * 0.05;
+  // Player's car — red, driving east along the road
+  const playerCar = createCarModel(0);
+  playerCar.position.set(10, 0.3, roadZ - 2);
+  playerCar.rotation.y = Math.PI / 2;
   scene.add(playerCar);
 
-  // Police car 1 — right behind
+  // Police car 1 — close behind
   const cop1 = createPoliceCarModel();
-  cop1.position.set(44, 0.3, -186);
-  cop1.rotation.y = 0.05;
+  cop1.position.set(-4, 0.3, roadZ - 2);
+  cop1.rotation.y = Math.PI / 2 + 0.05;
   scene.add(cop1);
 
-  // Police car 2 — beside the first
+  // Police car 2 — beside cop1
   const cop2 = createPoliceCarModel();
-  cop2.position.set(56, 0.3, -183);
-  cop2.rotation.y = 0.0;
+  cop2.position.set(-6, 0.3, roadZ + 2);
+  cop2.rotation.y = Math.PI / 2 - 0.03;
   scene.add(cop2);
 
   // Police car 3 — further back
   const cop3 = createPoliceCarModel();
-  cop3.position.set(50, 0.3, -173);
-  cop3.rotation.y = 0.1;
+  cop3.position.set(-18, 0.3, roadZ - 1);
+  cop3.rotation.y = Math.PI / 2 + 0.08;
   scene.add(cop3);
 
-  // Traffic cars on the road for context
+  // Traffic: a car swerving out of the way
   const traf1 = createCarModel(3);
-  traf1.position.set(60, 0.3, -210);
-  traf1.rotation.y = Math.PI;
+  traf1.position.set(25, 0.3, roadZ + 3);
+  traf1.rotation.y = -Math.PI / 2 - 0.3;
   scene.add(traf1);
 
+  // Another car ahead
   const traf2 = createCarModel(7);
-  traf2.position.set(38, 0.3, -220);
-  traf2.rotation.y = 0;
+  traf2.position.set(40, 0.3, roadZ + 2);
+  traf2.rotation.y = -Math.PI / 2;
   scene.add(traf2);
 
-  // Camera: dramatic low angle behind player car, showing the chase
+  // Camera: behind and slightly above the chase, looking forward along the road
   setCameraForShot(camera,
-    new THREE.Vector3(42, 4.5, -188),
-    new THREE.Vector3(52, 1.0, -208)
+    new THREE.Vector3(-10, 6, roadZ + 8),
+    new THREE.Vector3(15, 1.0, roadZ - 2)
   );
 
   gs.missionSystem.objectiveText = 'Escape the police! Lose your wanted level.';
   gs.missionSystem.dialogueSpeaker = '';
   gs.missionSystem.dialogueText = '';
 
-  // Activate siren lights on police cars
+  // Siren lights on
   for (const cop of [cop1, cop2, cop3]) {
     const red = cop.getObjectByName('sirenRed');
     const blue = cop.getObjectByName('sirenBlue');
@@ -93,7 +96,7 @@ function setupCoverShot(camera, gs, scene) {
     if (blue) blue.material.color.setHex(0x0066ff);
   }
 
-  gs.currentVehicle = { x: 50, z: -200, speed: 28, angle: 0.05 };
+  gs.currentVehicle = { x: 10, z: roadZ, speed: 28, angle: Math.PI / 2 };
 }
 
 function setupOnFootShot(camera, gs, scene) {
