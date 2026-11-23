@@ -13,6 +13,7 @@ import { createProps } from './world/props.js';
 import { createWater, updateWater } from './world/water.js';
 import { createSky, createLighting } from './world/sky.js';
 import { createTerrain } from './world/terrain.js';
+import { createAtmosphere, updateAtmosphere } from './world/atmosphere.js';
 
 import { createCarModel } from './vehicles/vehicle.js';
 import { createCarState, updateCarPhysics, MAX_SPEED } from './vehicles/carPhysics.js';
@@ -79,6 +80,7 @@ const waterObj = createWater(scene);
 setLoad(70);
 createSky(scene);
 const lighting = createLighting(scene);
+const atmosphere = createAtmosphere(scene);
 setLoad(80);
 
 /* ---- Player ---- */
@@ -431,6 +433,9 @@ if (isScreenshotMode()) {
 
       // Water animation
       updateWater(waterObj, gameState.time);
+
+      // Atmospheric particles
+      updateAtmosphere(atmosphere, player.x, player.z, gameState.time);
 
       // Render scene
       renderer.render(scene, camera);
