@@ -2,7 +2,7 @@
 import * as THREE from 'three';
 import { HALF, CELL, ROAD_WIDTH, mulberry32 } from '../world/cityLayout.js';
 
-const PED_COUNT = 40;
+const PED_COUNT = 60;
 const PED_SPEED = 2.0;
 const FLEE_SPEED = 7.0;
 const SPAWN_RADIUS = 120;

@@ -52,10 +52,10 @@ export function createLighting(scene) {
   sun.position.copy(sunDir.clone().multiplyScalar(200));
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
-  sun.shadow.camera.left = -120;
-  sun.shadow.camera.right = 120;
-  sun.shadow.camera.top = 120;
-  sun.shadow.camera.bottom = -120;
+  sun.shadow.camera.left = -150;
+  sun.shadow.camera.right = 150;
+  sun.shadow.camera.top = 150;
+  sun.shadow.camera.bottom = -150;
   sun.shadow.camera.near = 50;
   sun.shadow.camera.far = 500;
   sun.shadow.bias = -0.001;
@@ -69,7 +69,7 @@ export function createLighting(scene) {
   scene.add(hemi);
 
   // Warm golden-hour fog
-  scene.fog = new THREE.FogExp2(0xd4a574, 0.0015);
+  scene.fog = new THREE.FogExp2(0xd4a574, 0.0008);
 
   return { sun, ambient, hemi, sunDir };
 }

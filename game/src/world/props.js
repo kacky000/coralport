@@ -102,10 +102,31 @@ export function createProps(scene) {
     }
   }
 
+  // More boulevard palms along major horizontal roads
+  for (let z = -HALF + 160; z < HALF; z += CELL * 2) {
+    for (let x = -200; x < 200; x += 20) {
+      const rng = mulberry32(seed++);
+      if (rng() > 0.6) {
+        createPalmTree(scene, x + rng() * 3, z + ROAD_WIDTH / 2 + 2);
+      }
+    }
+  }
+
   // Harbor cranes
   for (let i = 0; i < 4; i++) {
     const rng = mulberry32(seed++);
     createCrane(scene, 220 + i * 50 + rng() * 20, -HALF + 180 + rng() * 40);
+  }
+
+  // Benches and dumpsters near buildings (ground-level detail)
+  const benchMat = new THREE.MeshStandardMaterial({ color: 0x664422, roughness: 0.9 });
+  for (let i = 0; i < 30; i++) {
+    const rng = mulberry32(seed++);
+    const bx = -300 + rng() * 600;
+    const bz = -300 + rng() * 600;
+    const bench = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.5, 0.4), benchMat);
+    bench.position.set(bx, 0.25, bz);
+    scene.add(bench);
   }
 
   return props;

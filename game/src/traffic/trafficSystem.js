@@ -5,7 +5,7 @@ import { createCarModel } from '../vehicles/vehicle.js';
 import { getTrafficState } from '../world/roads.js';
 
 const TRAFFIC_SPEED = 8;
-const TRAFFIC_COUNT = 30;
+const TRAFFIC_COUNT = 45;
 const SPAWN_RADIUS = 180;
 const DESPAWN_RADIUS = 250;
 
