@@ -1,13 +1,11 @@
-// Coralport entry program — copies the game files and screenshots to the output directory,
-// then writes the dossier that the judge reads. The game itself is a 3D open-world crime game
-// built with three.js, set in the fictional coastal city of Coralport. All geometry is procedural,
-// all sound is synthesized with WebAudio, and there are no external assets.
+// Coralport — entry program for make.fun gta6-01 bounty.
+// Copies the 3D open-world crime game (game/) and its 4 screenshots to the output directory,
+// then writes dossier.json with the vendored buildDossier function. The game is set in the
+// fictional coastal city of Coralport with five districts, six story missions, police chases,
+// and a full HUD. Everything is procedural: geometry, textures, and audio — no external assets.
 //
-// To test locally:
-//   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
-// To play:
-//   node serve.ts
-//   open http://localhost:8080
+// Play locally:   node serve.ts     (opens at http://localhost:8080)
+// Build output:   mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
 
 import { cpSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';

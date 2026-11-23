@@ -32,42 +32,53 @@ export function setupShot(name, camera, gameState, scene) {
 }
 
 function setupCoverShot(camera, gs, scene) {
-  // Police chase on a sunny boulevard: player in a red car, 3+ wanted stars,
-  // police cars with sirens chasing, traffic, full HUD with minimap and mission text
-  gs.player.x = 10;
-  gs.player.z = -150;
+  // Police chase on a sunny boulevard: player in a red car, 4 wanted stars,
+  // multiple police cars with sirens chasing, traffic, full HUD
+  gs.player.x = 50;
+  gs.player.z = -200;
   gs.inVehicle = true;
   gs.wantedLevel = 4;
   gs.player.money = 3200;
 
   // Player's car — a red sports car speeding down the road
   const playerCar = createCarModel(0); // red
-  playerCar.position.set(10, 0.3, -150);
-  playerCar.rotation.y = -0.15;
+  playerCar.position.set(50, 0.3, -200);
+  playerCar.rotation.y = Math.PI * 0.05;
   scene.add(playerCar);
 
-  // Police car 1 — close behind
+  // Police car 1 — right behind
   const cop1 = createPoliceCarModel();
-  cop1.position.set(0, 0.3, -135);
-  cop1.rotation.y = -0.1;
+  cop1.position.set(44, 0.3, -186);
+  cop1.rotation.y = 0.05;
   scene.add(cop1);
 
-  // Police car 2 — further back, slightly offset
+  // Police car 2 — beside the first
   const cop2 = createPoliceCarModel();
-  cop2.position.set(18, 0.3, -128);
-  cop2.rotation.y = -0.2;
+  cop2.position.set(56, 0.3, -183);
+  cop2.rotation.y = 0.0;
   scene.add(cop2);
 
-  // Police car 3 — coming from side street
+  // Police car 3 — further back
   const cop3 = createPoliceCarModel();
-  cop3.position.set(35, 0.3, -145);
-  cop3.rotation.y = Math.PI / 2 + 0.3;
+  cop3.position.set(50, 0.3, -173);
+  cop3.rotation.y = 0.1;
   scene.add(cop3);
 
-  // Camera: dramatic chase angle behind and above
+  // Traffic cars on the road for context
+  const traf1 = createCarModel(3);
+  traf1.position.set(60, 0.3, -210);
+  traf1.rotation.y = Math.PI;
+  scene.add(traf1);
+
+  const traf2 = createCarModel(7);
+  traf2.position.set(38, 0.3, -220);
+  traf2.rotation.y = 0;
+  scene.add(traf2);
+
+  // Camera: dramatic low angle behind player car, showing the chase
   setCameraForShot(camera,
-    new THREE.Vector3(-2, 5.5, -138),
-    new THREE.Vector3(14, 1.5, -155)
+    new THREE.Vector3(42, 4.5, -188),
+    new THREE.Vector3(52, 1.0, -208)
   );
 
   gs.missionSystem.objectiveText = 'Escape the police! Lose your wanted level.';
@@ -82,7 +93,7 @@ function setupCoverShot(camera, gs, scene) {
     if (blue) blue.material.color.setHex(0x0066ff);
   }
 
-  gs.currentVehicle = { x: 10, z: -150, speed: 28, angle: -0.15 };
+  gs.currentVehicle = { x: 50, z: -200, speed: 28, angle: 0.05 };
 }
 
 function setupOnFootShot(camera, gs, scene) {
@@ -120,41 +131,58 @@ function setupOnFootShot(camera, gs, scene) {
 }
 
 function setupCombatShot(camera, gs, scene) {
-  // Combat/shootout at the harbor with cranes visible, HUD showing weapon
-  gs.player.x = 240;
-  gs.player.z = -200;
+  // Combat/shootout at the harbor district with cranes visible, HUD showing weapon
+  gs.player.x = 250;
+  gs.player.z = -210;
   gs.inVehicle = false;
   gs.wantedLevel = 2;
   gs.player.money = 1800;
 
-  // Player figure aiming
+  // Player figure aiming forward
   const playerFig = createPlayerModel();
-  playerFig.position.set(240, 0, -200);
-  playerFig.rotation.y = Math.PI * 0.4;
+  playerFig.position.set(250, 0, -210);
+  playerFig.rotation.y = Math.PI * 0.6;
   scene.add(playerFig);
   gs.player.mesh.visible = false;
 
   // Muzzle flash
-  const flashGeo = new THREE.SphereGeometry(0.35, 8, 8);
+  const flashGeo = new THREE.SphereGeometry(0.25, 8, 8);
   const flashMat = new THREE.MeshBasicMaterial({ color: 0xffaa33 });
   const flash = new THREE.Mesh(flashGeo, flashMat);
-  flash.position.set(241, 1.3, -199.2);
+  flash.position.set(250.5, 1.3, -209.4);
   scene.add(flash);
 
-  // Some cars as cover
+  // Impact sparks in the distance
+  for (let i = 0; i < 4; i++) {
+    const spark = new THREE.Mesh(
+      new THREE.SphereGeometry(0.08, 4, 4),
+      new THREE.MeshBasicMaterial({ color: 0xffcc44 })
+    );
+    spark.position.set(255 + Math.random() * 3, 0.3 + Math.random() * 1, -215 + Math.random() * 2);
+    scene.add(spark);
+  }
+
+  // Cars as cover — crashed and angled
   const cover1 = createCarModel(5);
-  cover1.position.set(236, 0.3, -196);
-  cover1.rotation.y = 0.5;
+  cover1.position.set(246, 0.3, -207);
+  cover1.rotation.y = 0.8;
+  cover1.rotation.z = 0.05;
   scene.add(cover1);
 
   const cover2 = createCarModel(8);
-  cover2.position.set(245, 0.3, -205);
-  cover2.rotation.y = -0.8;
+  cover2.position.set(255, 0.3, -215);
+  cover2.rotation.y = -0.4;
   scene.add(cover2);
 
+  // Police car parked nearby
+  const cop = createPoliceCarModel();
+  cop.position.set(243, 0.3, -204);
+  cop.rotation.y = 1.2;
+  scene.add(cop);
+
   setCameraForShot(camera,
-    new THREE.Vector3(233, 4, -194),
-    new THREE.Vector3(243, 1.2, -203)
+    new THREE.Vector3(244, 3.5, -205),
+    new THREE.Vector3(253, 1.2, -212)
   );
 
   gs.missionSystem.objectiveText = 'Eliminate the rival crew at the docks';

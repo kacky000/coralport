@@ -1,6 +1,6 @@
-/* Ground terrain — flat city ground, beach sand, grass areas */
+/* Ground terrain — flat city ground, beach sand, sidewalks, grass areas */
 import * as THREE from 'three';
-import { HALF } from './cityLayout.js';
+import { HALF, CELL, ROAD_WIDTH, BLOCK_SIZE, generateRoadGrid } from './cityLayout.js';
 
 function makeGroundTexture(color1, color2, size) {
   const c = document.createElement('canvas');
@@ -8,7 +8,6 @@ function makeGroundTexture(color1, color2, size) {
   const ctx = c.getContext('2d');
   ctx.fillStyle = color1;
   ctx.fillRect(0, 0, size, size);
-  // Add noise/variation
   for (let i = 0; i < 800; i++) {
     ctx.fillStyle = color2;
     ctx.globalAlpha = 0.1 + Math.random() * 0.15;
@@ -53,11 +52,38 @@ export function createTerrain(scene) {
   sand.receiveShadow = true;
   scene.add(sand);
 
-  // Sidewalks along roads — lighter concrete
+  // Sidewalks along roads — concrete strips beside each road
   const sidewalkMat = new THREE.MeshStandardMaterial({
-    color: 0x999988,
+    color: 0xaaa99a,
     roughness: 0.85,
   });
+  const roads = generateRoadGrid();
+  const swW = 2.0; // sidewalk width
+
+  for (const rz of roads.horizontal) {
+    // North sidewalk
+    const nGeo = new THREE.BoxGeometry(HALF * 2, 0.12, swW);
+    const n = new THREE.Mesh(nGeo, sidewalkMat);
+    n.position.set(0, 0.06, rz - ROAD_WIDTH / 2 - swW / 2);
+    n.receiveShadow = true;
+    scene.add(n);
+    // South sidewalk
+    const s = new THREE.Mesh(nGeo, sidewalkMat);
+    s.position.set(0, 0.06, rz + ROAD_WIDTH / 2 + swW / 2);
+    s.receiveShadow = true;
+    scene.add(s);
+  }
+  for (const rx of roads.vertical) {
+    const eGeo = new THREE.BoxGeometry(swW, 0.12, HALF * 2);
+    const e = new THREE.Mesh(eGeo, sidewalkMat);
+    e.position.set(rx - ROAD_WIDTH / 2 - swW / 2, 0.06, 0);
+    e.receiveShadow = true;
+    scene.add(e);
+    const w = new THREE.Mesh(eGeo, sidewalkMat);
+    w.position.set(rx + ROAD_WIDTH / 2 + swW / 2, 0.06, 0);
+    w.receiveShadow = true;
+    scene.add(w);
+  }
 
   return { ground, sand };
 }

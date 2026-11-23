@@ -62,10 +62,10 @@ export function createLighting(scene) {
   scene.add(sun);
   scene.add(sun.target);
 
-  const ambient = new THREE.AmbientLight(0x667799, 0.5);
+  const ambient = new THREE.AmbientLight(0x889aaa, 0.7);
   scene.add(ambient);
 
-  const hemi = new THREE.HemisphereLight(0x88aadd, 0x445533, 0.3);
+  const hemi = new THREE.HemisphereLight(0x99bbdd, 0x556644, 0.5);
   scene.add(hemi);
 
   // Warm golden-hour fog

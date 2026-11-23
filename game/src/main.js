@@ -16,6 +16,7 @@ import { createTerrain } from './world/terrain.js';
 
 import { createCarModel } from './vehicles/vehicle.js';
 import { createCarState, updateCarPhysics, MAX_SPEED } from './vehicles/carPhysics.js';
+import { emitDriftSmoke, updateEffects } from './vehicles/effects.js';
 
 import { createPlayerModel, createPlayerState, updatePlayerOnFoot } from './player/playerOnFoot.js';
 import { handleEnterExit, getEnterPrompt } from './player/enterExitVehicle.js';
@@ -323,6 +324,11 @@ if (isScreenshotMode()) {
           engineSoundTimer = 0.08;
         }
 
+        // Drift effects
+        if (car.drifting && Math.abs(car.speed) > 8) {
+          emitDriftSmoke(scene, car);
+        }
+
         // Radio
         if (wasPressed('KeyR')) switchStation();
       } else {
@@ -383,6 +389,9 @@ if (isScreenshotMode()) {
 
       // District name
       gameState.districtName = getDistrictName(player.x, player.z);
+
+      // Vehicle effects
+      updateEffects(dt, scene);
 
       // Player death
       if (player.health <= 0) {
