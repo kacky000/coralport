@@ -193,17 +193,18 @@ function setupCombatShot(camera, gs, scene) {
 }
 
 function setupMapShot(camera, gs, scene) {
-  // Map/phone screen showing city map with districts and mission list
+  // Show BOTH: the map/phone screen AND the start screen behind it
+  // The start screen is semi-transparent so the city shows through
   gs.player.x = 0;
   gs.player.z = -150;
   gs.inVehicle = false;
   gs.wantedLevel = 0;
   gs.player.money = 4200;
 
-  // Camera: wide overhead view of the city
+  // Camera: cinematic wide angle showing the city skyline
   setCameraForShot(camera,
-    new THREE.Vector3(0, 80, -100),
-    new THREE.Vector3(0, 0, -180)
+    new THREE.Vector3(0, 25, -120),
+    new THREE.Vector3(0, 5, -200)
   );
 
   gs.showPhone = true;

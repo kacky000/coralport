@@ -93,9 +93,9 @@ function getDistrictMaterial(districtName, height, seed) {
     map: tex,
     emissiveMap: emTex,
     emissive: new THREE.Color(0xffeebb),
-    emissiveIntensity: 0.3,
-    roughness: 0.7,
-    metalness: districtName === 'Downtown' ? 0.4 : 0.1,
+    emissiveIntensity: 0.5,
+    roughness: 0.6,
+    metalness: districtName === 'Downtown' ? 0.5 : 0.15,
   });
   return mat;
 }

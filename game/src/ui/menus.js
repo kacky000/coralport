@@ -22,14 +22,14 @@ export function createMenus(callbacks) {
 function showStartScreen() {
   currentMenu = 'start';
   menuContainer.innerHTML = `
-    <div style="position:fixed;inset:0;background:linear-gradient(180deg,#0a0c18 0%,#1a2240 50%,#2a1a10 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;">
-      <div style="font-size:72px;font-weight:900;color:#f7a825;letter-spacing:8px;text-shadow:0 4px 20px rgba(247,168,37,0.4);font-family:'Segoe UI',Arial,sans-serif;">CORALPORT</div>
-      <div style="font-size:16px;color:rgba(255,255,255,0.4);letter-spacing:6px;margin-top:8px;text-transform:uppercase;">An Open World Crime Game</div>
+    <div style="position:fixed;inset:0;background:linear-gradient(180deg,rgba(10,12,24,0.85) 0%,rgba(26,34,64,0.75) 50%,rgba(42,26,16,0.7) 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+      <div style="font-size:80px;font-weight:900;color:#f7a825;letter-spacing:10px;text-shadow:0 4px 24px rgba(247,168,37,0.5),0 0 60px rgba(247,168,37,0.2);font-family:'Segoe UI',Arial,sans-serif;">CORALPORT</div>
+      <div style="font-size:18px;color:rgba(255,255,255,0.5);letter-spacing:8px;margin-top:10px;text-transform:uppercase;">An Open World Crime Game</div>
       <div style="margin-top:60px;display:flex;flex-direction:column;gap:16px;align-items:center;">
-        <button id="btn-new" style="background:linear-gradient(90deg,#f7a825,#e85d3a);border:none;color:#fff;font-size:20px;padding:14px 48px;border-radius:8px;cursor:pointer;font-weight:bold;letter-spacing:2px;min-width:220px;pointer-events:auto;">NEW GAME</button>
+        <button id="btn-new" style="background:linear-gradient(90deg,#f7a825,#e85d3a);border:none;color:#fff;font-size:20px;padding:14px 48px;border-radius:8px;cursor:pointer;font-weight:bold;letter-spacing:2px;min-width:220px;pointer-events:auto;box-shadow:0 4px 20px rgba(232,93,58,0.4);">NEW GAME</button>
         <button id="btn-load" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#ccc;font-size:16px;padding:10px 48px;border-radius:8px;cursor:pointer;letter-spacing:2px;min-width:220px;pointer-events:auto;">CONTINUE</button>
       </div>
-      <div style="position:absolute;bottom:20px;color:rgba(255,255,255,0.2);font-size:12px;">WASD to move · Mouse to look · F enter/exit vehicle · Click to shoot · ESC pause</div>
+      <div style="position:absolute;bottom:20px;color:rgba(255,255,255,0.3);font-size:12px;">WASD to move · Mouse to look · F enter/exit vehicle · Click to shoot · ESC pause</div>
     </div>
   `;
 

@@ -99,6 +99,15 @@ const carSpawnPositions = [
   { x: -150, z: -120, angle: Math.PI },
   { x: 50, z: 50, angle: Math.PI / 2 },
   { x: -80, z: 100, angle: 0 },
+  // More cars throughout the city
+  { x: -200, z: -250, angle: Math.PI / 3 },
+  { x: 150, z: -50, angle: 0 },
+  { x: -100, z: 50, angle: Math.PI },
+  { x: 250, z: -100, angle: Math.PI / 2 },
+  { x: 0, z: -250, angle: Math.PI / 4 },
+  { x: -180, z: 0, angle: 0 },
+  { x: 80, z: 150, angle: Math.PI },
+  { x: 300, z: -180, angle: Math.PI / 2 },
 ];
 for (let i = 0; i < carSpawnPositions.length; i++) {
   const sp = carSpawnPositions[i];
