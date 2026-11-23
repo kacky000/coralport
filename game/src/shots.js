@@ -1,79 +1,179 @@
-// The screenshot scenes behind ?shot=start|play|end. Each one plays the real rules forward from a
-// fresh world for a fixed number of steps, steered by a simple autopilot (look ahead each way the
-// paddle could move, keep clear of blocks, chase the lowest coin when that is safe), so the frame
-// is what a short game really looks like and the same seed always gives the same frame.
-import { FIELD, PLAYER, STEP } from './config.js';
-import { EVENT_OVER, KIND_BLOCK } from './world.js';
-import { SCREEN_OVER, SCREEN_PLAY, SCREEN_TITLE } from './render.js';
+/* Screenshot mode — sets up scripted scenes for deterministic screenshots.
+   Activated by ?shot=<name>&seed=<n> in the URL.
+   Each shot sets camera, scene state, and renders one frame. */
+import * as THREE from 'three';
+import { setCameraForShot } from './core/camera.js';
+import { createCarModel, createPoliceCarModel } from './vehicles/vehicle.js';
+import { createPlayerModel } from './player/playerOnFoot.js';
 
-const START_SECONDS = 5;
-const PLAY_SECONDS = 26;
-const END_LIMIT_SECONDS = 600;
-/**
- * How far ahead, in seconds, the autopilot checks each way it could move: the play scene's pilot
- * looks well ahead and keeps all its lives; the end scene's looks only a moment ahead, so it is
- * caught out once the blocks speed up, as a hurried player is.
- */
-const HORIZON_PLAY = 0.7;
-const HORIZON_END = 0.25;
-const SAMPLE = 1 / 30;
-const DIRECTIONS = [0, -1, 1];
-/** Extra room, each side, it keeps between the paddle and a block. */
-const MARGIN = 10;
-
-/** Seconds until moving in `direction` (-1, 0, 1) runs the paddle into a block; Infinity when it never does. */
-function timeToHit(state, direction, horizon) {
-  const player = state.player;
-  for (let t = SAMPLE; t <= horizon; t += SAMPLE) {
-    const x = Math.min(FIELD.width - player.width, Math.max(0, player.x + direction * PLAYER.speed * t));
-    for (let index = 0; index < state.items.length; index += 1) {
-      const item = state.items[index];
-      if (!item.active || item.kind !== KIND_BLOCK) continue;
-      const y = item.y + item.speed * t;
-      if (y + item.height > player.y && y < player.y + player.height && item.x < x + player.width + MARGIN && item.x + item.width > x - MARGIN) return t;
-    }
-  }
-  return Infinity;
+export function isScreenshotMode() {
+  const params = new URLSearchParams(window.location.search);
+  return params.has('shot');
 }
 
-/** Of the safe ways to move, the one toward the lowest coin (or the centre); else the one that is hit last. */
-function autopilot(state, horizon) {
-  const player = state.player;
-  let coin = null;
-  for (let index = 0; index < state.items.length; index += 1) {
-    const item = state.items[index];
-    if (item.active && item.kind !== KIND_BLOCK && (coin === null || item.y > coin.y)) coin = item;
-  }
-  const target = coin === null ? FIELD.width / 2 : coin.x + coin.width / 2;
-  const centre = player.x + player.width / 2;
-  const wanted = target > centre + 8 ? 1 : target < centre - 8 ? -1 : 0;
-  let best = wanted;
-  let bestTime = timeToHit(state, wanted, horizon);
-  for (let index = 0; index < DIRECTIONS.length && bestTime !== Infinity; index += 1) {
-    const time = timeToHit(state, DIRECTIONS[index], horizon);
-    if (time > bestTime) {
-      bestTime = time;
-      best = DIRECTIONS[index];
-    }
-  }
-  return best;
+export function getShotName() {
+  return new URLSearchParams(window.location.search).get('shot');
 }
 
-/**
- * Set `world` to the named scene (start, play or end; any other name is start) and return the
- * screen to draw over it and the best score to show.
- */
-export function stageShot(name, world) {
-  world.reset();
-  if (name !== 'play' && name !== 'end') {
-    for (let index = 0; index < START_SECONDS / STEP; index += 1) world.step(STEP, 0, true);
-    return { screen: SCREEN_TITLE, best: 0 };
+export function getSeed() {
+  return parseInt(new URLSearchParams(window.location.search).get('seed') || '1');
+}
+
+export function setupShot(name, camera, gameState, scene) {
+  window.__shotMode = true;
+
+  switch (name) {
+    case 'cover': return setupCoverShot(camera, gameState, scene);
+    case 'onfoot': return setupOnFootShot(camera, gameState, scene);
+    case 'combat': return setupCombatShot(camera, gameState, scene);
+    case 'map': return setupMapShot(camera, gameState, scene);
+    default: return setupCoverShot(camera, gameState, scene);
   }
-  const limit = name === 'end' ? END_LIMIT_SECONDS : PLAY_SECONDS;
-  const horizon = name === 'end' ? HORIZON_END : HORIZON_PLAY;
-  for (let index = 0; index < limit / STEP; index += 1) {
-    if (world.step(STEP, autopilot(world.state, horizon), false) & EVENT_OVER) break;
+}
+
+function setupCoverShot(camera, gs, scene) {
+  // Police chase on a sunny boulevard: player in a red car, 3+ wanted stars,
+  // police cars with sirens chasing, traffic, full HUD with minimap and mission text
+  gs.player.x = 10;
+  gs.player.z = -150;
+  gs.inVehicle = true;
+  gs.wantedLevel = 4;
+  gs.player.money = 3200;
+
+  // Player's car — a red sports car speeding down the road
+  const playerCar = createCarModel(0); // red
+  playerCar.position.set(10, 0.3, -150);
+  playerCar.rotation.y = -0.15;
+  scene.add(playerCar);
+
+  // Police car 1 — close behind
+  const cop1 = createPoliceCarModel();
+  cop1.position.set(0, 0.3, -135);
+  cop1.rotation.y = -0.1;
+  scene.add(cop1);
+
+  // Police car 2 — further back, slightly offset
+  const cop2 = createPoliceCarModel();
+  cop2.position.set(18, 0.3, -128);
+  cop2.rotation.y = -0.2;
+  scene.add(cop2);
+
+  // Police car 3 — coming from side street
+  const cop3 = createPoliceCarModel();
+  cop3.position.set(35, 0.3, -145);
+  cop3.rotation.y = Math.PI / 2 + 0.3;
+  scene.add(cop3);
+
+  // Camera: dramatic chase angle behind and above
+  setCameraForShot(camera,
+    new THREE.Vector3(-2, 5.5, -138),
+    new THREE.Vector3(14, 1.5, -155)
+  );
+
+  gs.missionSystem.objectiveText = 'Escape the police! Lose your wanted level.';
+  gs.missionSystem.dialogueSpeaker = '';
+  gs.missionSystem.dialogueText = '';
+
+  // Activate siren lights on police cars
+  for (const cop of [cop1, cop2, cop3]) {
+    const red = cop.getObjectByName('sirenRed');
+    const blue = cop.getObjectByName('sirenBlue');
+    if (red) red.material.color.setHex(0xff0000);
+    if (blue) blue.material.color.setHex(0x0066ff);
   }
-  const over = world.state.lives === 0;
-  return { screen: over ? SCREEN_OVER : SCREEN_PLAY, best: world.state.score };
+
+  gs.currentVehicle = { x: 10, z: -150, speed: 28, angle: -0.15 };
+}
+
+function setupOnFootShot(camera, gs, scene) {
+  // On foot on Palm Beach with pedestrians, traffic, mission marker and dialogue
+  gs.player.x = 20;
+  gs.player.z = -270;
+  gs.inVehicle = false;
+  gs.wantedLevel = 0;
+  gs.player.money = 500;
+
+  // Show player model
+  const playerFig = createPlayerModel();
+  playerFig.position.set(20, 0, -270);
+  playerFig.rotation.y = Math.PI * 0.8;
+  scene.add(playerFig);
+  gs.player.mesh.visible = false;
+
+  // Some parked cars along the road
+  for (let i = 0; i < 4; i++) {
+    const car = createCarModel(2 + i * 3);
+    car.position.set(-10 + i * 25, 0.3, -265);
+    car.rotation.y = Math.PI / 2;
+    scene.add(car);
+  }
+
+  setCameraForShot(camera,
+    new THREE.Vector3(12, 3.5, -263),
+    new THREE.Vector3(24, 1.2, -273)
+  );
+
+  gs.missionSystem.objectiveText = 'Drive to the Sunset Shack on Palm Beach';
+  gs.missionSystem.dialogueSpeaker = 'Lucia Vega';
+  gs.missionSystem.dialogueText = "Marco! Welcome to Coralport — it's paradise, if you know the right people.";
+  gs.missionSystem.dialogueTimer = 10;
+}
+
+function setupCombatShot(camera, gs, scene) {
+  // Combat/shootout at the harbor with cranes visible, HUD showing weapon
+  gs.player.x = 240;
+  gs.player.z = -200;
+  gs.inVehicle = false;
+  gs.wantedLevel = 2;
+  gs.player.money = 1800;
+
+  // Player figure aiming
+  const playerFig = createPlayerModel();
+  playerFig.position.set(240, 0, -200);
+  playerFig.rotation.y = Math.PI * 0.4;
+  scene.add(playerFig);
+  gs.player.mesh.visible = false;
+
+  // Muzzle flash
+  const flashGeo = new THREE.SphereGeometry(0.35, 8, 8);
+  const flashMat = new THREE.MeshBasicMaterial({ color: 0xffaa33 });
+  const flash = new THREE.Mesh(flashGeo, flashMat);
+  flash.position.set(241, 1.3, -199.2);
+  scene.add(flash);
+
+  // Some cars as cover
+  const cover1 = createCarModel(5);
+  cover1.position.set(236, 0.3, -196);
+  cover1.rotation.y = 0.5;
+  scene.add(cover1);
+
+  const cover2 = createCarModel(8);
+  cover2.position.set(245, 0.3, -205);
+  cover2.rotation.y = -0.8;
+  scene.add(cover2);
+
+  setCameraForShot(camera,
+    new THREE.Vector3(233, 4, -194),
+    new THREE.Vector3(243, 1.2, -203)
+  );
+
+  gs.missionSystem.objectiveText = 'Eliminate the rival crew at the docks';
+  gs.weaponState.currentIndex = 1; // Pistol
+}
+
+function setupMapShot(camera, gs, scene) {
+  // Map/phone screen showing city map with districts and mission list
+  gs.player.x = 0;
+  gs.player.z = -150;
+  gs.inVehicle = false;
+  gs.wantedLevel = 0;
+  gs.player.money = 4200;
+
+  // Camera: wide overhead view of the city
+  setCameraForShot(camera,
+    new THREE.Vector3(0, 80, -100),
+    new THREE.Vector3(0, 0, -180)
+  );
+
+  gs.showPhone = true;
 }
